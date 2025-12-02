@@ -1,0 +1,39 @@
+<!-- Garmin Connect IQ Manifest -->
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <iq:application entry="RingControlApp" id="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6" launcherIcon="@Drawables.LauncherIcon" minApiLevel="3.2.0" name="@Strings.AppName" type="watch-app" version="1.0.0">
+        <iq:products>
+            <!-- Supported Garmin devices -->
+            <iq:product id="fenix5"/>
+            <iq:product id="fenix5plus"/>
+            <iq:product id="fenix5s"/>
+            <iq:product id="fenix5splus"/>
+            <iq:product id="fenix5x"/>
+            <iq:product id="fenix5xplus"/>
+            <iq:product id="fenix6"/>
+            <iq:product id="fenix6pro"/>
+            <iq:product id="fenix6s"/>
+            <iq:product id="fenix6spro"/>
+            <iq:product id="fenix6x"/>
+            <iq:product id="fenix6xpro"/>
+            <iq:product id="fenix7"/>
+            <iq:product id="fenix7s"/>
+            <iq:product id="fenix7x"/>
+            <iq:product id="fr245"/>
+            <iq:product id="fr245m"/>
+            <iq:product id="fr945"/>
+            <iq:product id="fr945lte"/>
+            <iq:product id="vivoactive3"/>
+            <iq:product id="vivoactive3m"/>
+            <iq:product id="vivoactive3mlte"/>
+            <iq:product id="vivoactive4"/>
+            <iq:product id="vivoactive4s"/>
+        </iq:products>
+        <iq:permissions>
+            <iq:uses-permission id="Communications"/>
+        </iq:permissions>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

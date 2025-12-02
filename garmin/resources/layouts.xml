@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <layout id="MainLayout">
+        <label x="center" y="30%" font="Gfx.FONT_LARGE" color="Gfx.COLOR_WHITE" text="@Strings.AppName"/>
+        <label id="statusLabel" x="center" y="50%" font="Gfx.FONT_MEDIUM" color="Gfx.COLOR_LT_GRAY" text="@Strings.Unlock"/>
+        <label x="center" y="70%" font="Gfx.FONT_SMALL" color="Gfx.COLOR_DK_GRAY" text="Press SELECT"/>
+    </layout>
+</resources>

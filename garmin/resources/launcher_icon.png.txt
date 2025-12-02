@@ -1,0 +1,13 @@
+# Launcher Icon Placeholder
+#
+# For a production app, you would create a PNG image file named launcher_icon.png
+# with dimensions 80x80 pixels (or appropriate size for your target devices).
+#
+# You can create a simple icon using:
+# - GIMP, Photoshop, or any image editor
+# - Online icon generators
+# - The Garmin Connect IQ SDK icon generator
+#
+# For now, this is a placeholder. The app will use a default icon if this file is missing.
+#
+# Recommended icon: A key or lock symbol to represent door unlocking

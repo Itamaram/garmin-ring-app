@@ -1,0 +1,11 @@
+# Monkey C project configuration file
+# This file defines the project structure for the Connect IQ SDK
+
+project.manifest = manifest.xml
+
+# Source files
+base.sourcePath = source
+base.resourcePath = resources
+
+# Annotations
+base.annotations = annotations.xml

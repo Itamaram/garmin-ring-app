@@ -33,16 +33,16 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 ## Garmin Watch App Component
 
 ### Project Setup
-- [ ] **TASK-014**: Initialize Garmin Connect IQ project structure
-- [ ] **TASK-015**: Create manifest.xml with app metadata and permissions
-- [ ] **TASK-016**: Create resources (strings, layouts, icons)
+- [x] **TASK-014**: Initialize Garmin Connect IQ project structure
+- [x] **TASK-015**: Create manifest.xml with app metadata and permissions
+- [x] **TASK-016**: Create resources (strings, layouts, icons)
 
 ### Core Functionality
-- [ ] **TASK-017**: Implement HMAC-SHA256 signing utility in Monkey C
-- [ ] **TASK-018**: Implement HTTP request builder with signature
-- [ ] **TASK-019**: Create main app UI with action button
-- [ ] **TASK-020**: Implement response handling and user feedback
-- [ ] **TASK-021**: Add configuration for server URL and shared secret
+- [x] **TASK-017**: Implement HMAC-SHA256 signing utility in Monkey C
+- [x] **TASK-018**: Implement HTTP request builder with signature
+- [x] **TASK-019**: Create main app UI with action button
+- [x] **TASK-020**: Implement response handling and user feedback
+- [x] **TASK-021**: Add configuration for server URL and shared secret
 
 ---
 
@@ -55,5 +55,5 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 
 ---
 
-## Current Task: TASK-014
-## Tasks Completed: 13/25
+## Current Task: TASK-022
+## Tasks Completed: 21/25

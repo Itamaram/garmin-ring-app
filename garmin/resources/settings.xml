@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <settings>
+        <setting propertyKey="@Properties.ServerUrl" title="@Strings.ServerUrlTitle">
+            <settingConfig type="alphaNumeric"/>
+        </setting>
+        <setting propertyKey="@Properties.SharedSecret" title="@Strings.SharedSecretTitle">
+            <settingConfig type="alphaNumeric"/>
+        </setting>
+    </settings>
+
+    <strings>
+        <string id="ServerUrlTitle">Server URL</string>
+        <string id="SharedSecretTitle">Shared Secret</string>
+    </strings>
+
+    <properties>
+        <property id="ServerUrl" type="string">http://192.168.1.100:3000</property>
+        <property id="SharedSecret" type="string"></property>
+    </properties>
+</resources>

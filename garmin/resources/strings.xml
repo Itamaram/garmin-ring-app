@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string id="AppName">Ring Control</string>
+    <string id="Unlock">Unlock Door</string>
+    <string id="Unlocking">Unlocking...</string>
+    <string id="Success">Door Unlocked!</string>
+    <string id="Failed">Failed</string>
+    <string id="Connecting">Connecting...</string>
+    <string id="NoConfig">Not Configured</string>
+    <string id="ConfigureApp">Configure app settings</string>
+</resources>
