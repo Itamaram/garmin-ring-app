@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  ring-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: ring-garmin-server
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist configuration across container restarts
+      - ./config:/app/config
+      # Map config.json to the expected location
+      - ./config/config.json:/app/config.json
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    # Don't start until manually configured
+    # Use: docker-compose run --rm ring-server node scripts/auth.js
+    #      docker-compose run --rm ring-server node scripts/select-device.js
+    #      docker-compose run --rm ring-server node scripts/generate-secret.js
+    #      docker-compose up -d
+    profiles:
+      - manual  # Requires explicit start after configuration
+
+  # Alternative: use this profile to keep container running for exec commands
+  ring-server-setup:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: ring-garmin-server-setup
+    volumes:
+      - ./config:/app/config
+      - ./config/config.json:/app/config.json
+    environment:
+      - NODE_ENV=development
+    # Keep container alive for docker exec
+    command: tail -f /dev/null
+    profiles:
+      - setup

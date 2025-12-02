@@ -24,9 +24,9 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 - [x] **TASK-010**: Add health check and status endpoints
 
 ### Containerization
-- [ ] **TASK-011**: Create Dockerfile for server
-- [ ] **TASK-012**: Create docker-compose.yml with volume mounts for config persistence
-- [ ] **TASK-013**: Create container entry point and startup scripts
+- [x] **TASK-011**: Create Dockerfile for server
+- [x] **TASK-012**: Create docker-compose.yml with volume mounts for config persistence
+- [x] **TASK-013**: Create container entry point and startup scripts
 
 ---
 
@@ -55,5 +55,5 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 
 ---
 
-## Current Task: TASK-011
-## Tasks Completed: 10/25
+## Current Task: TASK-014
+## Tasks Completed: 13/25
