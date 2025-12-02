@@ -97,7 +97,7 @@ jobs:
           unzip -q sdk.zip -d $HOME/connectiq-sdk
           echo "SDK_HOME=$HOME/connectiq-sdk" >> $GITHUB_ENV
 
-      - name: Build Garmin App for Multiple Devices
+      - name: Build Garmin App for Forerunner 955
         run: |
           export PATH=$SDK_HOME/bin:$PATH
           cd garmin
@@ -105,30 +105,16 @@ jobs:
           # Create output directory
           mkdir -p ../build/garmin
 
-          # Build for various popular devices
-          devices=(
-            "fenix6"
-            "fenix6pro"
-            "fenix7"
-            "fr945"
-            "vivoactive4"
-          )
-
-          for device in "${devices[@]}"; do
-            echo "Building for $device..."
-            monkeyc \
-              -f monkey.jungle \
-              -d $device \
-              -o ../build/garmin/ring-control-$device.prg \
-              -w || echo "Warning: Failed to build for $device"
-          done
-
-          # Build a generic/universal version if possible
+          # Build for Forerunner 955
+          echo "Building for Forerunner 955..."
           monkeyc \
             -f monkey.jungle \
-            -d fenix6 \
-            -o ../build/garmin/ring-control.prg \
-            -w || true
+            -d fr955 \
+            -o ../build/garmin/ring-control-fr955.prg \
+            -w
+
+          # Also create a generic copy
+          cp ../build/garmin/ring-control-fr955.prg ../build/garmin/ring-control.prg
 
           ls -lh ../build/garmin/
 
@@ -141,14 +127,14 @@ jobs:
 
       - name: Generate installation instructions
         run: |
-          echo "## ⌚ Garmin Apps Built" >> $GITHUB_STEP_SUMMARY
+          echo "## ⌚ Garmin App Built for Forerunner 955" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Download the .prg file for your watch model from the artifacts." >> $GITHUB_STEP_SUMMARY
+          echo "Download ring-control-fr955.prg from the artifacts." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation:" >> $GITHUB_STEP_SUMMARY
           echo "1. Download artifact from this workflow run" >> $GITHUB_STEP_SUMMARY
-          echo "2. Connect watch via USB" >> $GITHUB_STEP_SUMMARY
-          echo "3. Copy .prg file to GARMIN/APPS folder" >> $GITHUB_STEP_SUMMARY
+          echo "2. Connect Forerunner 955 via USB" >> $GITHUB_STEP_SUMMARY
+          echo "3. Copy ring-control-fr955.prg to GARMIN/APPS folder" >> $GITHUB_STEP_SUMMARY
           echo "4. Disconnect and restart watch" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration:" >> $GITHUB_STEP_SUMMARY
