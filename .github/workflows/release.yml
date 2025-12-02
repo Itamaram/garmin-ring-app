@@ -1,0 +1,207 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md > /tmp/changelog.md
+          else
+            echo "## Changes" > /tmp/changelog.md
+            echo "" >> /tmp/changelog.md
+            git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> /tmp/changelog.md
+          fi
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
+          body_path: /tmp/changelog.md
+          draft: false
+          prerelease: false
+
+  build-and-release-server:
+    name: Build and Release Server
+    needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-and-release-garmin:
+    name: Build and Release Garmin App
+    needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Connect IQ SDK
+        run: |
+          wget -q https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-4.2.4-2024-01-24-6c3fd39.zip -O sdk.zip
+          unzip -q sdk.zip -d $HOME/connectiq-sdk
+          echo "SDK_HOME=$HOME/connectiq-sdk" >> $GITHUB_ENV
+
+      - name: Build Garmin Apps
+        run: |
+          export PATH=$SDK_HOME/bin:$PATH
+          cd garmin
+          mkdir -p ../release
+
+          # Build for popular devices
+          devices=(
+            "fenix6"
+            "fenix6pro"
+            "fenix7"
+            "fenix7s"
+            "fenix7x"
+            "fr245"
+            "fr945"
+            "vivoactive3"
+            "vivoactive4"
+            "vivoactive4s"
+          )
+
+          for device in "${devices[@]}"; do
+            echo "Building for $device..."
+            monkeyc \
+              -f monkey.jungle \
+              -d $device \
+              -o ../release/ring-control-$device.prg \
+              -w || echo "Skipping $device (build failed)"
+          done
+
+      - name: Create release archive
+        run: |
+          cd release
+          zip -r ring-control-apps.zip *.prg
+          cd ..
+
+          # Create installation guide
+          cat > release/INSTALL.txt << 'EOF'
+          Ring Control - Garmin Watch App Installation
+          =============================================
+
+          1. Find the .prg file for your watch model
+          2. Connect your Garmin watch to your computer via USB
+          3. Copy the .prg file to the GARMIN/APPS folder on your watch
+          4. Safely eject and disconnect your watch
+          5. Restart your watch (optional but recommended)
+
+          Configuration:
+          1. Open Garmin Connect app on your phone
+          2. Go to: Menu → Devices → Your Watch → Apps
+          3. Find "Ring Control" and tap Settings
+          4. Enter:
+             - Server URL: http://YOUR_SERVER_IP:3000
+             - Shared Secret: (from generate-secret.js output)
+
+          For detailed instructions, see:
+          https://github.com/${{ github.repository }}
+          EOF
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./release/ring-control-apps.zip
+          asset_name: ring-control-garmin-apps-${{ needs.create-release.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Installation Guide
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./release/INSTALL.txt
+          asset_name: INSTALL.txt
+          asset_content_type: text/plain

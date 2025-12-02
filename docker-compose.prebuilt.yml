@@ -1,0 +1,46 @@
+version: '3.8'
+
+# Docker Compose configuration for using pre-built images from GitHub Container Registry
+# This is an alternative to building locally
+
+services:
+  ring-server:
+    # Replace OWNER/REPO with your GitHub repository path
+    # Example: ghcr.io/username/garmin-ring-app:latest
+    image: ghcr.io/OWNER/REPO:latest
+
+    container_name: ring-garmin-server
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      # Persist configuration across container restarts
+      - ./config:/app/config
+
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+    restart: unless-stopped
+
+    # Uncomment to use host network (easier for local network access)
+    # network_mode: "host"
+
+  # Alternative: Setup service for running configuration scripts
+  ring-server-setup:
+    image: ghcr.io/OWNER/REPO:latest
+
+    container_name: ring-garmin-server-setup
+
+    volumes:
+      - ./config:/app/config
+
+    environment:
+      - NODE_ENV=development
+
+    # Keep container alive for docker exec
+    command: tail -f /dev/null
+
+    profiles:
+      - setup

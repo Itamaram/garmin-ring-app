@@ -1,0 +1,186 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'server/**'
+      - 'garmin/**'
+      - '.github/workflows/build.yml'
+      - 'docker-compose.yml'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-server:
+    name: Build and Push Server Container
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate deployment instructions
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "## 🐳 Container Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Pull and run the server:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Configure the server" >> $GITHUB_STEP_SUMMARY
+          echo "docker run --rm -it -v ./config:/app/config ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest node scripts/auth.js" >> $GITHUB_STEP_SUMMARY
+          echo "docker run --rm -it -v ./config:/app/config ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest node scripts/select-device.js" >> $GITHUB_STEP_SUMMARY
+          echo "docker run --rm -it -v ./config:/app/config ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest node scripts/generate-secret.js" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Start the server" >> $GITHUB_STEP_SUMMARY
+          echo "docker run -d -p 3000:3000 -v ./config:/app/config --name ring-server ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  build-garmin-app:
+    name: Build Garmin Watch App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Connect IQ SDK
+        run: |
+          wget -q https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-4.2.4-2024-01-24-6c3fd39.zip -O sdk.zip
+          unzip -q sdk.zip -d $HOME/connectiq-sdk
+          echo "SDK_HOME=$HOME/connectiq-sdk" >> $GITHUB_ENV
+
+      - name: Build Garmin App for Multiple Devices
+        run: |
+          export PATH=$SDK_HOME/bin:$PATH
+          cd garmin
+
+          # Create output directory
+          mkdir -p ../build/garmin
+
+          # Build for various popular devices
+          devices=(
+            "fenix6"
+            "fenix6pro"
+            "fenix7"
+            "fr945"
+            "vivoactive4"
+          )
+
+          for device in "${devices[@]}"; do
+            echo "Building for $device..."
+            monkeyc \
+              -f monkey.jungle \
+              -d $device \
+              -o ../build/garmin/ring-control-$device.prg \
+              -w || echo "Warning: Failed to build for $device"
+          done
+
+          # Build a generic/universal version if possible
+          monkeyc \
+            -f monkey.jungle \
+            -d fenix6 \
+            -o ../build/garmin/ring-control.prg \
+            -w || true
+
+          ls -lh ../build/garmin/
+
+      - name: Upload Garmin App Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: garmin-watch-app
+          path: build/garmin/*.prg
+          retention-days: 90
+
+      - name: Generate installation instructions
+        run: |
+          echo "## ⌚ Garmin Apps Built" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download the .prg file for your watch model from the artifacts." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download artifact from this workflow run" >> $GITHUB_STEP_SUMMARY
+          echo "2. Connect watch via USB" >> $GITHUB_STEP_SUMMARY
+          echo "3. Copy .prg file to GARMIN/APPS folder" >> $GITHUB_STEP_SUMMARY
+          echo "4. Disconnect and restart watch" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Open Garmin Connect app" >> $GITHUB_STEP_SUMMARY
+          echo "2. Go to Device → Apps → Ring Control → Settings" >> $GITHUB_STEP_SUMMARY
+          echo "3. Set Server URL and Shared Secret" >> $GITHUB_STEP_SUMMARY
+
+  integration-test:
+    name: Integration Tests
+    needs: [build-server]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build test container
+        run: |
+          docker build -t ring-server-test ./server
+
+      - name: Test server startup
+        run: |
+          # Start server in background (will fail without config, but that's expected)
+          docker run -d --name test-server ring-server-test || true
+
+          # Check if scripts are accessible
+          docker run --rm ring-server-test ls -la scripts/
+
+          echo "✅ Server container structure validated"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f test-server || true

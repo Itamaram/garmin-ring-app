@@ -28,12 +28,14 @@ This project enables you to unlock your Ring intercom using your Garmin smartwat
 
 ## Quick Start
 
+> 💡 **New!** You can now use pre-built container images from GitHub Container Registry. See [USING-PREBUILT.md](USING-PREBUILT.md) for details.
+
 ### Prerequisites
 
 - Docker and Docker Compose
 - Ring account with 2FA enabled
 - Garmin smartwatch (see supported devices)
-- Garmin Connect IQ SDK (for building the watch app)
+- Garmin Connect IQ SDK (optional - only needed if building from source)
 
 ### 1. Server Setup
 
