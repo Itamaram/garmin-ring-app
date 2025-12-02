@@ -17,11 +17,11 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 - [x] **TASK-005**: Implement device selection script (`select-device.js`) - lists available Ring devices and saves selection
 
 ### Core Server Functionality
-- [ ] **TASK-006**: Implement Ring API client wrapper with refresh token handling
-- [ ] **TASK-007**: Create HTTP server with Express
-- [ ] **TASK-008**: Implement HMAC-SHA256 request signature verification
-- [ ] **TASK-009**: Implement Ring device action endpoints (unlock, etc.)
-- [ ] **TASK-010**: Add health check and status endpoints
+- [x] **TASK-006**: Implement Ring API client wrapper with refresh token handling
+- [x] **TASK-007**: Create HTTP server with Express
+- [x] **TASK-008**: Implement HMAC-SHA256 request signature verification
+- [x] **TASK-009**: Implement Ring device action endpoints (unlock, etc.)
+- [x] **TASK-010**: Add health check and status endpoints
 
 ### Containerization
 - [ ] **TASK-011**: Create Dockerfile for server
@@ -55,5 +55,5 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 
 ---
 
-## Current Task: TASK-006
-## Tasks Completed: 5/25
+## Current Task: TASK-011
+## Tasks Completed: 10/25
