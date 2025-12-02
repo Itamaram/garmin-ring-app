@@ -1,0 +1,8 @@
+{
+  "refreshToken": "YOUR_RING_REFRESH_TOKEN_HERE",
+  "sharedSecret": "YOUR_SHARED_SECRET_HEX_HERE",
+  "selectedDeviceId": "12345678",
+  "selectedDeviceName": "Front Door Intercom",
+  "selectedDeviceType": "Intercom",
+  "port": 3000
+}
