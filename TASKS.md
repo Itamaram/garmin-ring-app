@@ -13,8 +13,8 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 - [x] **TASK-003**: Create shared secret generation and storage mechanism
 
 ### Authentication & Device Management
-- [ ] **TASK-004**: Implement authentication script (`auth.js`) - prompts for username, password, MFA token
-- [ ] **TASK-005**: Implement device selection script (`select-device.js`) - lists available Ring devices and saves selection
+- [x] **TASK-004**: Implement authentication script (`auth.js`) - prompts for username, password, MFA token
+- [x] **TASK-005**: Implement device selection script (`select-device.js`) - lists available Ring devices and saves selection
 
 ### Core Server Functionality
 - [ ] **TASK-006**: Implement Ring API client wrapper with refresh token handling
@@ -55,5 +55,5 @@ Build a system allowing Garmin smartwatch to control Amazon Ring intercom via a 
 
 ---
 
-## Current Task: TASK-004
-## Tasks Completed: 3/25
+## Current Task: TASK-006
+## Tasks Completed: 5/25
