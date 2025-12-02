@@ -1,0 +1,33 @@
+# Configuration files with secrets
+config/
+config.json
+.env
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+*.prg
+*.iq
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+.docker/
+
+# Temporary files
+tmp/
+temp/
