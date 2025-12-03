@@ -53,7 +53,7 @@ docker-compose run --rm ring-server node scripts/select-device.js
 docker-compose run --rm ring-server node scripts/generate-secret.js
 
 # Start the server
-docker-compose --profile manual up -d ring-server
+docker-compose up -d
 
 # Verify it's running
 curl http://localhost:3000/health

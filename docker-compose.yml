@@ -17,13 +17,12 @@ services:
       - NODE_ENV=production
       - PORT=3000
     restart: unless-stopped
-    # Don't start until manually configured
-    # Use: docker-compose run --rm ring-server node scripts/auth.js
-    #      docker-compose run --rm ring-server node scripts/select-device.js
-    #      docker-compose run --rm ring-server node scripts/generate-secret.js
-    #      docker-compose up -d
-    profiles:
-      - manual  # Requires explicit start after configuration
+    # Server runs continuously to maintain Ring session
+    # Configure before first start:
+    #   docker-compose run --rm ring-server node scripts/auth.js
+    #   docker-compose run --rm ring-server node scripts/select-device.js
+    #   docker-compose run --rm ring-server node scripts/generate-secret.js
+    # Then start with: docker-compose up -d
 
   # Alternative: use this profile to keep container running for exec commands
   ring-server-setup:

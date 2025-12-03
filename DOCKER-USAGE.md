@@ -42,7 +42,7 @@ docker-compose run --rm ring-server node scripts/generate-secret.js
 ### 3. Start the Server
 
 ```bash
-docker-compose --profile manual up -d ring-server
+docker-compose up -d
 ```
 
 ### 4. Verify
@@ -86,7 +86,7 @@ docker exec -it ring-garmin-server-setup node scripts/generate-secret.js
 ### 3. Stop Setup Container and Start Production
 ```bash
 docker-compose --profile setup down
-docker-compose --profile manual up -d ring-server
+docker-compose up -d
 ```
 
 ## Managing the Server
@@ -109,7 +109,7 @@ docker-compose restart ring-server
 ### Rebuild After Code Changes
 ```bash
 docker-compose build
-docker-compose --profile manual up -d ring-server
+docker-compose up -d
 ```
 
 ## Configuration Persistence
